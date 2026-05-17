@@ -14,6 +14,23 @@ function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close mobile menu when clicking a link
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
   const navItems = [
     { path: '/', name: 'Home' },
     { path: '/about', name: 'About' },
@@ -29,47 +46,148 @@ function Header() {
   ];
 
   return (
-    <nav style={{
-      background: scrolled ? 'rgba(255,255,255,0.98)' : 'white',
-      backdropFilter: scrolled ? 'blur(10px)' : 'none',
-      boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.08)' : '0 1px 0 rgba(0,0,0,0.05)',
-      padding: '16px 0',
-      position: 'sticky',
-      top: 0,
-      zIndex: 1000,
-      transition: 'all 0.3s ease'
-    }}>
-      <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <div>
-            <div style={{ fontSize: '26px', fontWeight: '700', fontFamily: "'Cormorant Garamond', serif", color: '#C62828', letterSpacing: '1px' }}>SSDB</div>
-            <div style={{ fontSize: '10px', color: '#C62828', letterSpacing: '1.5px', marginTop: '2px' }}>SRI SIMHAGIRI DEVASTHANAM BOARD</div>
+    <>
+      <nav style={{
+        background: scrolled ? 'rgba(255,255,255,0.98)' : 'white',
+        backdropFilter: scrolled ? 'blur(10px)' : 'none',
+        boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.08)' : '0 1px 0 rgba(0,0,0,0.05)',
+        padding: '12px 0',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        transition: 'all 0.3s ease'
+      }}>
+        <div className="container" style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center' 
+        }}>
+          <Link to="/" style={{ textDecoration: 'none' }} onClick={() => setMobileMenuOpen(false)}>
+            <div>
+              <div style={{ 
+                fontSize: '20px', 
+                fontWeight: '700', 
+                fontFamily: "'Cormorant Garamond', serif",
+                color: '#C62828',
+                letterSpacing: '1px'
+              }}>
+                SSDB
+              </div>
+              <div style={{ 
+                fontSize: '8px', 
+                color: '#C62828', 
+                letterSpacing: '1px',
+                marginTop: '2px',
+                display: 'none'
+              }}>
+                SRI SIMHAGIRI DEVASTHANAM BOARD
+              </div>
+            </div>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div style={{ 
+            display: 'none', 
+            gap: '20px',
+            alignItems: 'center',
+            flexWrap: 'wrap'
+          }} className="desktop-nav">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                style={{
+                  textDecoration: 'none',
+                  color: location.pathname === item.path ? '#C62828' : '#4A4A4A',
+                  fontWeight: location.pathname === item.path ? '600' : '400',
+                  fontSize: '14px',
+                  letterSpacing: '0.3px',
+                  transition: 'color 0.3s ease',
+                  padding: '4px 0',
+                  borderBottom: location.pathname === item.path ? '2px solid #FFD700' : 'none'
+                }}
+              >
+                {item.name}
+              </Link>
+            ))}
           </div>
-        </Link>
 
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
-          {navItems.map((item) => (
-            <Link key={item.path} to={item.path} style={{ textDecoration: 'none', color: location.pathname === item.path ? '#C62828' : '#4A4A4A', fontWeight: location.pathname === item.path ? '600' : '400', fontSize: '14px', letterSpacing: '0.3px', transition: 'color 0.3s ease', padding: '4px 0', borderBottom: location.pathname === item.path ? '2px solid #FFD700' : 'none' }}
-              onMouseEnter={(e) => e.target.style.color = '#C62828'}
-              onMouseLeave={(e) => e.target.style.color = location.pathname === item.path ? '#C62828' : '#4A4A4A'}>
-              {item.name}
-            </Link>
-          ))}
+          {/* Mobile Menu Button */}
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="mobile-menu-btn"
+            aria-label="Menu"
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '28px',
+              cursor: 'pointer',
+              padding: '8px',
+              color: '#C62828',
+              minWidth: '44px',
+              minHeight: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            {mobileMenuOpen ? '✕' : '☰'}
+          </button>
         </div>
+      </nav>
 
-        <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', display: 'none', color: '#C62828' }} className="mobile-menu-btn">
-          {mobileMenuOpen ? '✕' : '☰'}
-        </button>
-      </div>
-
+      {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div style={{ position: 'absolute', top: '70px', left: 0, right: 0, background: 'white', padding: '20px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {navItems.map((item) => (<Link key={item.path} to={item.path} onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: location.pathname === item.path ? '#C62828' : '#4A4A4A', fontWeight: location.pathname === item.path ? '600' : '400', fontSize: '16px', padding: '8px 0' }}>{item.name}</Link>))}
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'white',
+          zIndex: 999,
+          overflowY: 'auto',
+          paddingTop: '70px'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            padding: '20px'
+          }}>
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  textDecoration: 'none',
+                  color: location.pathname === item.path ? '#C62828' : '#4A4A4A',
+                  fontWeight: location.pathname === item.path ? '600' : '400',
+                  fontSize: '18px',
+                  padding: '12px 0',
+                  borderBottom: '1px solid #E8E0D8',
+                  display: 'block'
+                }}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 
-      <style>{`@media (max-width: 1024px) { .mobile-menu-btn { display: block !important; } nav .container > div:last-child { display: none; } }`}</style>
-    </nav>
+      <style>{`
+        @media (min-width: 768px) {
+          .desktop-nav {
+            display: flex !important;
+          }
+          .mobile-menu-btn {
+            display: none !important;
+          }
+        }
+      `}</style>
+    </>
   );
 }
 
